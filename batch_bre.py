@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     p = beam.Pipeline(options=PipelineOptions())
 
-    (p | 'ReadData' >> beam.io.ReadFromText('breweries.csv', skip_header_lines =1)
+    (p | 'ReadData' >> beam.io.ReadFromText('gs://group6-miniproject/breweries.csv', skip_header_lines =1)
        | 'SplitData' >> beam.Map(lambda x: x.split(','))
        | 'FormatToDict' >> beam.Map(lambda x: {"id": x[0], "name": x[1], "city": x[2], "state": x[3]})
        | 'DeleteIncompleteData' >> beam.Filter(discard_incomplete)
