@@ -4,7 +4,7 @@ from apache_beam.options.pipeline_options import PipelineOptions
 from sys import argv
 from apache_beam.io import WriteToText
 
-PROJECT_ID = 'tempproject-9380d'
+PROJECT_ID = 'sales-performance-337815'
 SCHEMA = 'abv:FLOAT,id:INTEGER,name:STRING,style:STRING,brewery_id:INTEGER,ounces:FLOAT'
 
 def discard_incomplete(data):
@@ -35,14 +35,14 @@ if __name__ == '__main__':
 
     p = beam.Pipeline(options=PipelineOptions())
 
-    (p | 'ReadData' >> beam.io.ReadFromText('gs://<project-name>/batch/beers.csv', skip_header_lines =1)
+    (p | 'ReadData' >> beam.io.ReadFromText('gs://group6-miniproject/batch/beers.csv', skip_header_lines =1)
        | 'SplitData' >> beam.Map(lambda x: x.split(','))
        | 'FormatToDict' >> beam.Map(lambda x: {"sr": x[0], "abv": x[1], "ibu": x[2], "id": x[3], "name": x[4], "style": x[5], "brewery_id": x[6], "ounces": x[7]}) 
        | 'DeleteIncompleteData' >> beam.Filter(discard_incomplete)
        | 'ChangeDataType' >> beam.Map(convert_types)
        | 'DeleteUnwantedData' >> beam.Map(del_unwanted_cols)
        | 'WriteToBigQuery' >> beam.io.WriteToBigQuery(
-           '{0}:beer.beer_data'.format(PROJECT_ID),
+           '{0}:beer.beer_transform_data'.format(PROJECT_ID),
            schema=SCHEMA,
            write_disposition=beam.io.BigQueryDisposition.WRITE_APPEND))
     result = p.run()
